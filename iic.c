@@ -1,12 +1,12 @@
 #include <msp430.h> 
 unsigned char I2CBUF;
 unsigned char checkbit;
-#define SCL_H   (P10OUT |= BIT2)      // P10.2为SCL
-#define SCL_L   (P10OUT &= ~BIT2)
-#define SDA_H   (P10OUT |= BIT1)     //p10.1为SDA
-#define SDA_L   (P10OUT &= ~BIT1)
-#define SDA_OUT  (P10DIR |= BIT1)
-#define SDA_IN  (P10DIR &= ~ BIT1)
+#define SCL_H   (P1OUT |= BIT2)      // P10.2为SCL
+#define SCL_L   (P1OUT &= ~BIT2)
+#define SDA_H   (P1OUT |= BIT1)     //p10.1为SDA
+#define SDA_L   (P1OUT &= ~BIT1)
+#define SDA_OUT  (P1DIR |= BIT1)
+#define SDA_IN  (P1DIR &= ~ BIT1)
 void I2C_Start(void)    //I2C开始信号
 {
  SDA_OUT;
@@ -25,7 +25,7 @@ unsigned char testACK(void) {
  __delay_cycles(5);
  SCL_H;
  __delay_cycles(5);
- checkbit = (P10IN & BIT1) >> 4;
+ checkbit = (P1IN & BIT1) >> 4;
  __delay_cycles(5);
  SCL_L;
  __delay_cycles(5);
@@ -95,7 +95,7 @@ unsigned char I2C_READ(void)
   SCL_H;
   __delay_cycles(5);
   BUFFER <<= 1;
-  if ((P10IN & BIT1) == BIT1)   //判断数据高位是0还是1
+  if ((P1IN & BIT1) == BIT1)   //判断数据高位是0还是1
   {
    BUFFER |= 0X01;         //高位数据写1
   }
@@ -136,26 +136,4 @@ unsigned char C16_READEDATA(unsigned char address)
  READDATA = I2C_READ();
  I2C_STOP();
  return READDATA;
-}
-int main(void)
-{
-    const int DATA = 0X88;
- unsigned char READBUFFER;
- WDTCTL = WDTPW + WDTHOLD;
- P10DIR |= BIT1 + BIT2;
- P2DIR |= BIT0;
- P2OUT &= ~BIT0;
- C16_WRITEDATA(0X00, DATA);
- __delay_cycles(5);
- READBUFFER = C16_READEDATA(0X00);
- while (1)
- {
-  if (READBUFFER == 0X88)
-  {
-   P2OUT |= BIT0;
-  } else {
-   P2OUT &= ~ BIT0;
-  }
-  __delay_cycles(15);
- }
 }
